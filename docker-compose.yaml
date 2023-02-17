@@ -2,7 +2,7 @@ version: "3"
 
 services:  
   mysql:
-    image: wesleywillians/mysql-kafka-connect:latest
+    image: mysql:5.7
     command: --innodb-use-native-aio=0
     tty: true
     restart: always
@@ -11,7 +11,9 @@ services:
     environment:
       - MYSQL_DATABASE=fullcycle
       - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_USER=root
+      - MYSQL_USER=carlos
+    volumes:
+      - ./mysql:/etc/mysql
     extra_hosts:
       - "host.docker.internal:172.17.0.1"
 
@@ -97,6 +99,7 @@ services:
         echo "Installing Connector"
         confluent-hub install --no-prompt debezium/debezium-connector-mysql:1.2.2
         confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:1.5.0
+        confluent-hub install --no-prompt confluentinc/kafka-connect-elasticsearch:14.0.5
         #
         echo "Launching Kafka Connect worker"
         /etc/confluent/docker/run &
@@ -131,3 +134,30 @@ services:
       - ME_CONFIG_MONGODB_ADMINPASSWORD=root
     depends_on:
       - mongodb
+
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    container_name: elasticdbz
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.7.0
+    container_name: kib01
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
