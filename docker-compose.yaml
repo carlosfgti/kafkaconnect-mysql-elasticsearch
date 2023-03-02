@@ -137,13 +137,15 @@ services:
 
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
     container_name: elasticdbz
     environment:
       - discovery.type=single-node
     ports:
       - "9200:9200"
       - "9300:9300"
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -152,7 +154,7 @@ services:
       - "host.docker.internal:172.17.0.1"
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.7.0
+    image: docker.elastic.co/kibana/kibana:8.6.2
     container_name: kib01
     ports:
       - 5601:5601
@@ -161,3 +163,6 @@ services:
       ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
     extra_hosts:
       - "host.docker.internal:172.17.0.1"
+
+volumes:
+  elastic_data:
