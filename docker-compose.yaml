@@ -141,6 +141,7 @@ services:
     container_name: elasticdbz
     environment:
       - discovery.type=single-node
+      - ELASTIC_PASSWORD=defaultpassword
     ports:
       - "9200:9200"
       - "9300:9300"
